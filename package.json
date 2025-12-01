@@ -1,0 +1,19 @@
+{
+  "name": "life-showcase",
+  "version": "1.0.0",
+  "description": "An interactive journey through 'The Laughing Heart' by Charles Bukowski",
+  "main": "index.html",
+  "scripts": {
+    "dev": "python -m http.server 8000",
+    "preview": "python -m http.server 8000"
+  },
+  "keywords": [
+    "game",
+    "interactive",
+    "poetry",
+    "undertale",
+    "journey"
+  ],
+  "author": "HBS Crafting Your Life",
+  "license": "MIT"
+}

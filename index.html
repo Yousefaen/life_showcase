@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="An interactive journey through 'The Laughing Heart' by Charles Bukowski">
+    <meta name="theme-color" content="#050505">
+    <title>LIFE - An Interactive Journey</title>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div id="game-container">
+    <canvas id="gameCanvas"></canvas>
+
+    <div id="ui-layer">
+        <div id="text-box">
+            <span id="text-content"></span>
+            <div id="next-indicator"></div>
+        </div>
+    </div>
+
+    <div id="start-screen">
+        <h1 class="title">LIFE</h1>
+        <p class="subtitle">Sound Recommended</p>
+        <button class="start-btn" id="startBtn">BEGIN JOURNEY</button>
+        <div class="controls-hint">
+            <span class="desktop-controls">[ARROWS] to Move | [Z] or [ENTER] to Interact</span>
+            <span class="mobile-controls">Use on-screen controls</span>
+        </div>
+        <div class="credits">
+            <p>"The Laughing Heart" by Charles Bukowski</p>
+        </div>
+    </div>
+
+    <div id="completion-screen" style="display: none;">
+        <div class="completion-content">
+            <h2 class="completion-title">Journey Complete</h2>
+            <p class="completion-message">You have discovered all the words of wisdom.</p>
+            <p class="completion-poem-title">"The Laughing Heart"</p>
+            <p class="completion-author">— Charles Bukowski</p>
+            <button class="start-btn" id="restartBtn">Journey Again</button>
+        </div>
+    </div>
+</div>
+
+<div id="mobile-controls">
+    <div class="d-pad">
+        <div class="d-btn d-up" data-key="ArrowUp"></div>
+        <div class="d-btn d-down" data-key="ArrowDown"></div>
+        <div class="d-btn d-left" data-key="ArrowLeft"></div>
+        <div class="d-btn d-right" data-key="ArrowRight"></div>
+    </div>
+    <div class="action-btn" data-key="Enter">Z</div>
+</div>
+
+<script src="js/audio.js"></script>
+<script src="js/game.js"></script>
+<script src="js/rendering.js"></script>
+<script src="js/main.js"></script>
+
+</body>
+</html>
