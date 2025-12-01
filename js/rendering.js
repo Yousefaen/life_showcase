@@ -66,36 +66,31 @@ class Renderer {
     }
 
     drawGround() {
-        // MIDGROUND: Yellow-green grass with rocks (1x parallax - moves with player)
+        // MIDGROUND: Yellow-green grass with rocks (1x parallax - side-scrolling)
         let camX = gameState.cameraX;
-        let camY = gameState.cameraY;
 
         // Base ground (yellow-green grass) - playable area
         this.ctx.fillStyle = '#8FBC4F'; // Yellow-green grass
         this.ctx.fillRect(0, gameState.height * 0.5, gameState.width, gameState.height * 0.3);
 
-        // Darker grass patches for texture (1x parallax)
+        // Darker grass patches for texture (1x parallax, infinite scrolling)
         this.ctx.fillStyle = '#7DA83E';
-        for (let i = 0; i < 25; i++) {
-            let x = (i * 50 - camX) % (gameState.width + 100) - 50;
-            let y = gameState.height * 0.5 + (i % 5) * 15 - camY;
-            if (y > gameState.height * 0.5 && y < gameState.height * 0.8) {
-                this.ctx.fillRect(x, y, 35, 15);
-            }
+        for (let i = 0; i < 30; i++) {
+            let x = (i * 50 - camX) % (gameState.width + 150) - 75;
+            let y = gameState.height * 0.5 + (i % 5) * 12;
+            this.ctx.fillRect(x, y, 35, 15);
         }
 
-        // Grey rocks scattered on grass (1x parallax)
+        // Grey rocks scattered on grass (1x parallax, infinite scrolling)
         this.ctx.fillStyle = '#888888';
-        for (let i = 0; i < 20; i++) {
-            let rx = (i * 60 - camX) % (gameState.width + 100) - 50;
-            let ry = gameState.height * 0.55 + (i % 6) * 12 - camY;
-            if (ry > gameState.height * 0.5 && ry < gameState.height * 0.8) {
-                this.ctx.fillRect(rx, ry, 10 + (i % 3) * 4, 7);
-                // Rock highlight
-                this.ctx.fillStyle = '#AAAAAA';
-                this.ctx.fillRect(rx + 1, ry + 1, 3, 2);
-                this.ctx.fillStyle = '#888888';
-            }
+        for (let i = 0; i < 25; i++) {
+            let rx = (i * 60 - camX) % (gameState.width + 150) - 75;
+            let ry = gameState.height * 0.55 + (i % 5) * 10;
+            this.ctx.fillRect(rx, ry, 10 + (i % 3) * 4, 7);
+            // Rock highlight
+            this.ctx.fillStyle = '#AAAAAA';
+            this.ctx.fillRect(rx + 1, ry + 1, 3, 2);
+            this.ctx.fillStyle = '#888888';
         }
     }
 
@@ -179,19 +174,19 @@ class Renderer {
     drawInteractables() {
         for (let obj of interactables) {
             let screenX = obj.x - gameState.cameraX;
+            let screenY = obj.y;  // STATIC Y position (no vertical animation)
 
-            if (screenX < -30 || screenX > gameState.width + 30) continue;
+            if (screenX < -50 || screenX > gameState.width + 50) continue;
 
             if (obj.discovered) {
                 // Draw faded/discovered state
                 this.ctx.globalAlpha = 0.3;
             } else {
-                // Pulse effect for undiscovered items
-                let pulse = Math.sin(gameState.hintPulse + obj.x * 0.01) * 0.1 + 1.0;
-                this.ctx.globalAlpha = pulse * 0.9;
+                // No pulsing - items are static
+                this.ctx.globalAlpha = 1.0;
             }
 
-            this.drawInteractable(screenX, obj.y, obj.type);
+            this.drawInteractable(screenX, screenY, obj.type);
 
             // Interaction prompt - enhanced
             if (gameState.nearestInteractable === obj && !obj.discovered) {
@@ -538,7 +533,7 @@ class Renderer {
 
     drawPlayer() {
         let screenX = player.x - gameState.cameraX;
-        let screenY = player.y - gameState.cameraY;
+        let screenY = player.y;  // Y is not affected by camera (no Y scrolling)
 
         this.ctx.save();
         this.ctx.translate(screenX, screenY);

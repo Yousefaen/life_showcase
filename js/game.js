@@ -25,65 +25,66 @@ const poemLines = [
     "the gods wait to delight in you."
 ];
 
-// 19 UNIQUE Interactive objects - each visually distinct
-// Player starts at (160, 90), items arranged in a discoverable sequence
+// 19 UNIQUE Interactive objects in STRICT LEFT-TO-RIGHT ORDER
+// Player starts at x=160, items placed linearly across world
+// Y position: 110 (middle of grass area, STATIC - no vertical movement)
 const interactables = [
     // Line 0: "your life is your life"
-    { x: 200, y: 120, type: 'signpost', lineIndex: 0, discovered: false },
+    { x: 250, y: 110, type: 'signpost', lineIndex: 0, discovered: false },
 
     // Line 1: "don't let it be clubbed into dank submission"
-    { x: 120, y: 200, type: 'cairn', lineIndex: 1, discovered: false },
+    { x: 400, y: 110, type: 'cairn', lineIndex: 1, discovered: false },
 
     // Line 2: "be on the watch"
-    { x: 180, y: 300, type: 'hiker', lineIndex: 2, discovered: false },
+    { x: 550, y: 110, type: 'hiker', lineIndex: 2, discovered: false },
 
     // Line 3: "there are ways out"
-    { x: 280, y: 350, type: 'plane_wreck', lineIndex: 3, discovered: false },
+    { x: 700, y: 110, type: 'plane_wreck', lineIndex: 3, discovered: false },
 
     // Line 4: "there is a light somewhere"
-    { x: 380, y: 280, type: 'lighthouse', lineIndex: 4, discovered: false },
+    { x: 850, y: 110, type: 'lighthouse', lineIndex: 4, discovered: false },
 
     // Line 5: "it may not be much light but"
-    { x: 450, y: 200, type: 'weather_station', lineIndex: 5, discovered: false },
+    { x: 1000, y: 110, type: 'weather_station', lineIndex: 5, discovered: false },
 
     // Line 6: "it beats the darkness"
-    { x: 520, y: 120, type: 'geothermal_vent', lineIndex: 6, discovered: false },
+    { x: 1150, y: 110, type: 'geothermal_vent', lineIndex: 6, discovered: false },
 
     // Line 7: "be on the watch"
-    { x: 620, y: 150, type: 'telescope', lineIndex: 7, discovered: false },
+    { x: 1300, y: 110, type: 'telescope', lineIndex: 7, discovered: false },
 
     // Line 8: "the gods will offer you chances"
-    { x: 700, y: 220, type: 'viking_statue', lineIndex: 8, discovered: false },
+    { x: 1450, y: 110, type: 'viking_statue', lineIndex: 8, discovered: false },
 
     // Line 9: "know them"
-    { x: 680, y: 320, type: 'tourist', lineIndex: 9, discovered: false },
+    { x: 1600, y: 110, type: 'tourist', lineIndex: 9, discovered: false },
 
     // Line 10: "take them"
-    { x: 600, y: 400, type: 'globe', lineIndex: 10, discovered: false },
+    { x: 1750, y: 110, type: 'globe', lineIndex: 10, discovered: false },
 
     // Line 11: "you can't beat death but"
-    { x: 500, y: 450, type: 'ice_sculpture', lineIndex: 11, discovered: false },
+    { x: 1900, y: 110, type: 'ice_sculpture', lineIndex: 11, discovered: false },
 
     // Line 12: "you can beat death in life, sometimes"
-    { x: 400, y: 500, type: 'flag_pole', lineIndex: 12, discovered: false },
+    { x: 2050, y: 110, type: 'flag_pole', lineIndex: 12, discovered: false },
 
     // Line 13: "and the more often you learn to do it"
-    { x: 300, y: 520, type: 'abandoned_car', lineIndex: 13, discovered: false },
+    { x: 2200, y: 110, type: 'abandoned_car', lineIndex: 13, discovered: false },
 
     // Line 14: "the more light there will be"
-    { x: 200, y: 480, type: 'bench', lineIndex: 14, discovered: false },
+    { x: 2350, y: 110, type: 'bench', lineIndex: 14, discovered: false },
 
     // Line 15: "your life is your life"
-    { x: 120, y: 420, type: 'ruins', lineIndex: 15, discovered: false },
+    { x: 2500, y: 110, type: 'ruins', lineIndex: 15, discovered: false },
 
     // Line 16: "know it while you have it"
-    { x: 80, y: 320, type: 'whale_bones', lineIndex: 16, discovered: false },
+    { x: 2650, y: 110, type: 'whale_bones', lineIndex: 16, discovered: false },
 
     // Line 17: "you are marvelous"
-    { x: 100, y: 220, type: 'hot_spring', lineIndex: 17, discovered: false },
+    { x: 2800, y: 110, type: 'hot_spring', lineIndex: 17, discovered: false },
 
     // Line 18: "the gods wait to delight in you"
-    { x: 150, y: 120, type: 'viewpoint', lineIndex: 18, discovered: false }
+    { x: 2950, y: 110, type: 'viewpoint', lineIndex: 18, discovered: false }
 ];
 
 // Game state
@@ -109,14 +110,14 @@ const gameState = {
 
 // Player state
 const player = {
-    x: 160,
-    y: 90,
+    x: 160,  // X position in world
+    y: 110,  // Y position in world (middle of grass area)
     w: 12,
     h: 18,
     vx: 0,
     vy: 0,
     speed: 1.5,
-    facing: 'down', // down, up, left, right
+    facing: 'right', // down, up, left, right
     frame: 0,
     animTimer: 0,
     stepSoundTimer: 0
@@ -138,7 +139,7 @@ class Game {
         player.vx = 0;
         player.vy = 0;
 
-        // RPG-style 4-direction movement
+        // Side-scroller movement: left/right for world, up/down within grass bounds
         if (keys['ArrowRight']) {
             player.vx = player.speed;
             player.facing = 'right';
@@ -162,18 +163,23 @@ class Game {
             player.vy *= 0.707;
         }
 
-        // Bounds checking (world size)
-        let worldWidth = 800;
-        let worldHeight = 600;
-
-        if (player.x < 0) player.x = 0;
-        if (player.x > worldWidth) player.x = worldWidth;
-        if (player.y < 0) player.y = 0;
-        if (player.y > worldHeight) player.y = worldHeight;
-
         // Move player
         player.x += player.vx;
         player.y += player.vy;
+
+        // HARD Y-AXIS BOUNDARIES (grass midground only)
+        // Grass layer is at gameState.height * 0.5 to 0.8
+        // In pixel coordinates at 180px height: 90px to 144px
+        let grassTop = 95;      // Can't walk into mountains
+        let grassBottom = 135;   // Can't walk into sea
+
+        if (player.y < grassTop) player.y = grassTop;
+        if (player.y > grassBottom) player.y = grassBottom;
+
+        // X-axis bounds (world extends horizontally)
+        let worldWidth = 3200;  // Wide horizontal world
+        if (player.x < 0) player.x = 0;
+        if (player.x > worldWidth) player.x = worldWidth;
 
         // Walking animation
         if (player.vx !== 0 || player.vy !== 0) {
@@ -301,20 +307,19 @@ class Game {
     }
 
     updateCamera() {
-        // Smooth camera follow (center on player)
-        let worldWidth = 800;
-        let worldHeight = 600;
+        // SIDE-SCROLLER CAMERA: Follow X only, Y is fixed
+        let worldWidth = 3200;
 
         let targetCameraX = player.x - gameState.width / 2;
-        let targetCameraY = player.y - gameState.height / 2;
 
-        // Clamp camera to world bounds
+        // Clamp camera to world bounds (X only)
         targetCameraX = Math.max(0, Math.min(worldWidth - gameState.width, targetCameraX));
-        targetCameraY = Math.max(0, Math.min(worldHeight - gameState.height, targetCameraY));
 
-        // Smooth camera movement
+        // Smooth camera movement (X only)
         gameState.cameraX += (targetCameraX - gameState.cameraX) * 0.1;
-        gameState.cameraY += (targetCameraY - gameState.cameraY) * 0.1;
+
+        // Y camera is FIXED (no vertical scrolling)
+        gameState.cameraY = 0;
 
         // Camera shake decay
         if (gameState.cameraShake > 0) {
@@ -430,8 +435,8 @@ function restartGame() {
     gameState.cameraX = 0;
     gameState.cameraY = 0;
     player.x = 160;
-    player.y = 90;
-    player.facing = 'down';
+    player.y = 110;
+    player.facing = 'right';
 
     // Reset all interactables
     for (let obj of interactables) {
