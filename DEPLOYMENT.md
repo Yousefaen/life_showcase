@@ -101,13 +101,6 @@ Before deploying, you can customize:
 3. **Chapter names** - `js/rendering.js` (drawUI function)
 4. **Text colors** - `css/styles.css` (CSS variables)
 
-## 📊 Analytics (Optional)
-
-Add to `index.html` before `</head>`:
-```html
-<!-- Google Analytics or similar -->
-```
-
 ---
 
 **Ready to deploy?** Just push to GitHub and import to Vercel!

@@ -25,27 +25,27 @@ const poemLines = [
     "the gods wait to delight in you."
 ];
 
-// Interactive objects in the world
+// Interactive objects scattered across 2D world (800x600)
 const interactables = [
-    { x: 150, y: 140, type: 'stone', lineIndex: 0, discovered: false },
-    { x: 320, y: 135, type: 'candle', lineIndex: 1, discovered: false },
-    { x: 480, y: 140, type: 'sign', lineIndex: 2, discovered: false },
-    { x: 640, y: 138, type: 'flower', lineIndex: 3, discovered: false },
-    { x: 820, y: 135, type: 'torch', lineIndex: 4, discovered: false },
-    { x: 980, y: 140, type: 'book', lineIndex: 5, discovered: false },
-    { x: 1140, y: 138, type: 'crystal', lineIndex: 6, discovered: false },
-    { x: 1300, y: 135, type: 'mirror', lineIndex: 7, discovered: false },
-    { x: 1460, y: 140, type: 'statue', lineIndex: 8, discovered: false },
-    { x: 1620, y: 138, type: 'person', lineIndex: 9, discovered: false },
-    { x: 1780, y: 135, type: 'person', lineIndex: 10, discovered: false },
-    { x: 1940, y: 140, type: 'person', lineIndex: 11, discovered: false },
-    { x: 2100, y: 138, type: 'tree', lineIndex: 12, discovered: false },
-    { x: 2260, y: 135, type: 'star', lineIndex: 13, discovered: false },
-    { x: 2420, y: 140, type: 'fountain', lineIndex: 14, discovered: false },
-    { x: 2580, y: 138, type: 'heart', lineIndex: 15, discovered: false },
-    { x: 2740, y: 135, type: 'sun', lineIndex: 16, discovered: false },
-    { x: 2900, y: 140, type: 'crown', lineIndex: 17, discovered: false },
-    { x: 3060, y: 138, type: 'light', lineIndex: 18, discovered: false }
+    { x: 120, y: 450, type: 'stone', lineIndex: 0, discovered: false },
+    { x: 250, y: 320, type: 'candle', lineIndex: 1, discovered: false },
+    { x: 180, y: 180, type: 'sign', lineIndex: 2, discovered: false },
+    { x: 380, y: 420, type: 'flower', lineIndex: 3, discovered: false },
+    { x: 450, y: 250, type: 'torch', lineIndex: 4, discovered: false },
+    { x: 320, y: 90, type: 'book', lineIndex: 5, discovered: false },
+    { x: 580, y: 380, type: 'crystal', lineIndex: 6, discovered: false },
+    { x: 520, y: 150, type: 'mirror', lineIndex: 7, discovered: false },
+    { x: 680, y: 480, type: 'statue', lineIndex: 8, discovered: false },
+    { x: 420, y: 520, type: 'person', lineIndex: 9, discovered: false },
+    { x: 620, y: 220, type: 'person', lineIndex: 10, discovered: false },
+    { x: 150, y: 520, type: 'person', lineIndex: 11, discovered: false },
+    { x: 720, y: 320, type: 'tree', lineIndex: 12, discovered: false },
+    { x: 280, y: 560, type: 'star', lineIndex: 13, discovered: false },
+    { x: 550, y: 70, type: 'fountain', lineIndex: 14, discovered: false },
+    { x: 760, y: 180, type: 'heart', lineIndex: 15, discovered: false },
+    { x: 670, y: 560, type: 'sun', lineIndex: 16, discovered: false },
+    { x: 90, y: 280, type: 'crown', lineIndex: 17, discovered: false },
+    { x: 740, y: 80, type: 'light', lineIndex: 18, discovered: false }
 ];
 
 // Game state
@@ -54,6 +54,7 @@ const gameState = {
     width: 320,
     height: 180,
     cameraX: 0,
+    cameraY: 0,
     cameraShake: 0,
     screenFlash: 0,
     poemIndex: 0,
@@ -70,14 +71,14 @@ const gameState = {
 
 // Player state
 const player = {
-    x: 20,
-    y: 130,
+    x: 160,
+    y: 90,
     w: 12,
     h: 18,
     vx: 0,
     vy: 0,
-    speed: 1.8,
-    facing: 1,
+    speed: 1.5,
+    facing: 'down', // down, up, left, right
     frame: 0,
     animTimer: 0,
     stepSoundTimer: 0
@@ -97,25 +98,47 @@ class Game {
 
     updatePlayer(delta) {
         player.vx = 0;
+        player.vy = 0;
 
+        // RPG-style 4-direction movement
         if (keys['ArrowRight']) {
             player.vx = player.speed;
-            player.facing = 1;
+            player.facing = 'right';
         }
         if (keys['ArrowLeft']) {
             player.vx = -player.speed;
-            player.facing = -1;
+            player.facing = 'left';
+        }
+        if (keys['ArrowUp']) {
+            player.vy = -player.speed;
+            player.facing = 'up';
+        }
+        if (keys['ArrowDown']) {
+            player.vy = player.speed;
+            player.facing = 'down';
         }
 
-        // Bounds checking
+        // Diagonal movement normalization
+        if (player.vx !== 0 && player.vy !== 0) {
+            player.vx *= 0.707; // 1/sqrt(2)
+            player.vy *= 0.707;
+        }
+
+        // Bounds checking (world size)
+        let worldWidth = 800;
+        let worldHeight = 600;
+
         if (player.x < 0) player.x = 0;
-        if (player.x > 3200) player.x = 3200;
+        if (player.x > worldWidth) player.x = worldWidth;
+        if (player.y < 0) player.y = 0;
+        if (player.y > worldHeight) player.y = worldHeight;
 
         // Move player
         player.x += player.vx;
+        player.y += player.vy;
 
         // Walking animation
-        if (player.vx !== 0) {
+        if (player.vx !== 0 || player.vy !== 0) {
             player.animTimer++;
             if (player.animTimer > 8) {
                 player.frame = (player.frame + 1) % 2;
@@ -135,14 +158,17 @@ class Game {
     }
 
     checkInteractions() {
-        // Find nearest interactable
+        // Find nearest interactable (using 2D distance)
         let nearest = null;
-        let minDist = 40; // Interaction range
+        let minDist = 30; // Interaction range
 
         for (let obj of interactables) {
             if (obj.discovered) continue;
 
-            let dist = Math.abs(player.x - obj.x);
+            let dx = player.x - obj.x;
+            let dy = player.y - obj.y;
+            let dist = Math.sqrt(dx * dx + dy * dy);
+
             if (dist < minDist) {
                 minDist = dist;
                 nearest = obj;
@@ -200,12 +226,12 @@ class Game {
     }
 
     updateChapter() {
-        // Determine chapter based on player position
-        let progress = player.x;
+        // Determine chapter based on discoveries (not position)
+        let discovered = gameState.linesDiscovered;
 
-        if (progress > 2400) gameState.chapter = 3; // Golden
-        else if (progress > 1600) gameState.chapter = 2; // Crowd
-        else if (progress > 800) gameState.chapter = 1; // Fireflies
+        if (discovered >= 15) gameState.chapter = 3; // Golden
+        else if (discovered >= 10) gameState.chapter = 2; // Crowd
+        else if (discovered >= 5) gameState.chapter = 1; // Fireflies
         else gameState.chapter = 0; // Dark
     }
 
@@ -237,12 +263,20 @@ class Game {
     }
 
     updateCamera() {
-        // Smooth camera follow
-        let targetCameraX = player.x - gameState.width / 2 + player.w / 2;
-        targetCameraX = Math.max(0, targetCameraX);
-        targetCameraX = Math.min(3200 - gameState.width, targetCameraX);
+        // Smooth camera follow (center on player)
+        let worldWidth = 800;
+        let worldHeight = 600;
 
+        let targetCameraX = player.x - gameState.width / 2;
+        let targetCameraY = player.y - gameState.height / 2;
+
+        // Clamp camera to world bounds
+        targetCameraX = Math.max(0, Math.min(worldWidth - gameState.width, targetCameraX));
+        targetCameraY = Math.max(0, Math.min(worldHeight - gameState.height, targetCameraY));
+
+        // Smooth camera movement
         gameState.cameraX += (targetCameraX - gameState.cameraX) * 0.1;
+        gameState.cameraY += (targetCameraY - gameState.cameraY) * 0.1;
 
         // Camera shake decay
         if (gameState.cameraShake > 0) {
@@ -356,7 +390,10 @@ function restartGame() {
     gameState.linesDiscovered = 0;
     gameState.chapter = 0;
     gameState.cameraX = 0;
-    player.x = 20;
+    gameState.cameraY = 0;
+    player.x = 160;
+    player.y = 90;
+    player.facing = 'down';
 
     // Reset all interactables
     for (let obj of interactables) {

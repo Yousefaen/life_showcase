@@ -29,92 +29,125 @@ class Renderer {
     }
 
     drawBackground() {
-        // Background color based on chapter
-        let bgColor = '#050505'; // Dark
-        if (gameState.chapter === 3) bgColor = '#1a1a0d'; // Golden tint
-        else if (gameState.chapter === 2) bgColor = '#0a0a0a';
-        else if (gameState.chapter === 1) bgColor = '#080808';
+        // Iceland-themed background colors based on chapter
+        let skyColor, horizonColor;
 
-        this.ctx.fillStyle = bgColor;
+        if (gameState.chapter === 0) {
+            // Dark volcanic landscape
+            skyColor = '#0d0f1f';
+            horizonColor = '#1a1a2e';
+        } else if (gameState.chapter === 1) {
+            // Twilight - northern lights beginning
+            skyColor = '#1a2332';
+            horizonColor = '#2d3e5f';
+        } else if (gameState.chapter === 2) {
+            // Northern lights active
+            skyColor = '#0f1f3f';
+            horizonColor = '#1e3a5f';
+        } else {
+            // Golden hour with aurora
+            skyColor = '#1f2847';
+            horizonColor = '#3d5277';
+        }
+
+        // Sky gradient
+        let gradient = this.ctx.createLinearGradient(0, 0, 0, gameState.height);
+        gradient.addColorStop(0, skyColor);
+        gradient.addColorStop(1, horizonColor);
+        this.ctx.fillStyle = gradient;
         this.ctx.fillRect(0, 0, gameState.width, gameState.height);
+
+        // Northern lights effect (chapters 1+)
+        if (gameState.chapter >= 1) {
+            this.ctx.globalAlpha = 0.3 + gameState.chapter * 0.1;
+            let auroraGradient = this.ctx.createLinearGradient(0, 0, 0, gameState.height * 0.6);
+            auroraGradient.addColorStop(0, 'rgba(100, 255, 150, 0.15)');
+            auroraGradient.addColorStop(0.5, 'rgba(80, 180, 255, 0.1)');
+            auroraGradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            this.ctx.fillStyle = auroraGradient;
+            this.ctx.fillRect(0, 0, gameState.width, gameState.height * 0.6);
+            this.ctx.globalAlpha = 1.0;
+        }
     }
 
     drawGround() {
-        // Ground
-        this.ctx.fillStyle = '#1a1a1a';
-        this.ctx.fillRect(0, 148, gameState.width, 32);
+        // Iceland terrain - volcanic rock and ice
+        let camX = gameState.cameraX;
+        let camY = gameState.cameraY;
 
-        // Ground details
-        this.ctx.fillStyle = '#111';
-        for (let i = 0; i < 20; i++) {
-            let x = (i * 50 - gameState.cameraX % 50);
-            this.ctx.fillRect(x, 148, 2, 32);
+        // Base ground (volcanic rock)
+        this.ctx.fillStyle = '#2a2a3e';
+        this.ctx.fillRect(0, gameState.height * 0.7, gameState.width, gameState.height * 0.3);
+
+        // Darker volcanic patches
+        this.ctx.fillStyle = '#1a1a2a';
+        for (let i = 0; i < 15; i++) {
+            let x = (i * 60 - camX * 0.5) % gameState.width;
+            let y = gameState.height * 0.7 + (i % 3) * 8;
+            this.ctx.fillRect(x, y, 40, 20);
+        }
+
+        // Ice/snow patches (increases with chapter)
+        if (gameState.chapter >= 1) {
+            this.ctx.fillStyle = 'rgba(200, 220, 240, 0.3)';
+            for (let i = 0; i < 10; i++) {
+                let x = (i * 80 + 20 - camX * 0.3) % gameState.width;
+                let y = gameState.height * 0.75 + (i % 2) * 10;
+                this.ctx.fillRect(x, y, 30, 15);
+            }
         }
     }
 
     drawEnvironment() {
         const camX = gameState.cameraX;
+        const camY = gameState.cameraY;
 
-        // Pillars in dark chapter
-        if (gameState.chapter <= 1) {
-            this.ctx.fillStyle = '#0d0d0d';
-            for (let i = 0; i < 8; i++) {
-                let px = 100 + i * 180 - camX;
-                if (px > -50 && px < gameState.width + 50) {
-                    this.ctx.fillRect(px, 40, 25, 108);
-                    // Pillar shadow
-                    this.ctx.fillStyle = '#000';
-                    this.ctx.fillRect(px + 25, 40, 3, 108);
-                    this.ctx.fillStyle = '#0d0d0d';
-                }
-            }
+        // Iceland landscape features
+
+        // Distant mountains (volcanic)
+        this.ctx.fillStyle = '#0a0a1a';
+        for (let i = 0; i < 8; i++) {
+            let mx = (i * 120 - camX * 0.2) % (gameState.width + 200) - 100;
+            let mh = 40 + (i % 3) * 20;
+            this.ctx.beginPath();
+            this.ctx.moveTo(mx, gameState.height * 0.4);
+            this.ctx.lineTo(mx + 60, gameState.height * 0.4 - mh);
+            this.ctx.lineTo(mx + 120, gameState.height * 0.4);
+            this.ctx.fill();
         }
 
-        // Torches/lights
+        // Glaciers (more prominent in later chapters)
         if (gameState.chapter >= 1) {
-            for (let i = 0; i < 20; i++) {
-                let lx = 400 + i * 150 - camX;
-                if (lx > -20 && lx < gameState.width + 20) {
-                    // Post
-                    this.ctx.fillStyle = '#333';
-                    this.ctx.fillRect(lx, 100, 4, 48);
-
-                    // Flame
-                    let flicker = 0.6 + Math.random() * 0.4;
-                    this.ctx.fillStyle = `rgba(255, 180, 50, ${flicker})`;
-                    this.ctx.beginPath();
-                    this.ctx.arc(lx + 2, 98, 5 + Math.random() * 3, 0, Math.PI * 2);
-                    this.ctx.fill();
-
-                    // Glow
-                    let gradient = this.ctx.createRadialGradient(lx + 2, 98, 0, lx + 2, 98, 20);
-                    gradient.addColorStop(0, 'rgba(255, 200, 100, 0.3)');
-                    gradient.addColorStop(1, 'rgba(255, 200, 100, 0)');
-                    this.ctx.fillStyle = gradient;
-                    this.ctx.fillRect(lx - 18, 78, 40, 40);
-                }
+            this.ctx.fillStyle = `rgba(180, 200, 220, ${0.2 + gameState.chapter * 0.1})`;
+            for (let i = 0; i < 5; i++) {
+                let gx = (i * 150 + 30 - camX * 0.3) % (gameState.width + 200) - 100;
+                let gh = 30 + (i % 2) * 15;
+                this.ctx.beginPath();
+                this.ctx.moveTo(gx, gameState.height * 0.5);
+                this.ctx.lineTo(gx + 50, gameState.height * 0.5 - gh);
+                this.ctx.lineTo(gx + 100, gameState.height * 0.5);
+                this.ctx.fill();
             }
         }
 
-        // The crowd/gods
-        if (gameState.chapter >= 2) {
-            for (let i = 0; i < 15; i++) {
-                let nx = 1400 + i * 80 - camX;
-                if (nx > -30 && nx < gameState.width + 30) {
-                    this.drawNPC(nx, 136, i % 3);
-                }
+        // Lava rocks (scattered)
+        this.ctx.fillStyle = '#1a1a2a';
+        for (let i = 0; i < 12; i++) {
+            let rx = (i * 70 - camX) % (gameState.width + 100) - 50;
+            let ry = gameState.height * 0.65 + (i % 4) * 8 - camY * 0.5;
+            if (ry > 0 && ry < gameState.height) {
+                this.ctx.fillRect(rx, ry, 15 + (i % 3) * 5, 10);
             }
         }
 
-        // Final light
-        if (gameState.chapter === 3) {
-            let endX = 3000 - camX;
-            let gradient = this.ctx.createRadialGradient(endX, 80, 10, endX, 80, 300);
-            gradient.addColorStop(0, 'rgba(255, 255, 200, 0.6)');
-            gradient.addColorStop(0.5, 'rgba(255, 255, 150, 0.2)');
-            gradient.addColorStop(1, 'rgba(255, 255, 200, 0)');
-            this.ctx.fillStyle = gradient;
-            this.ctx.fillRect(0, 0, gameState.width, gameState.height);
+        // Steam vents (geothermal activity)
+        if (gameState.chapter >= 1 && Math.random() < 0.05) {
+            this.ctx.fillStyle = 'rgba(200, 200, 220, 0.3)';
+            let sx = Math.random() * gameState.width;
+            let sy = gameState.height * 0.7;
+            for (let j = 0; j < 5; j++) {
+                this.ctx.fillRect(sx + (Math.random() - 0.5) * 10, sy - j * 8, 3, 5);
+            }
         }
     }
 
@@ -362,68 +395,92 @@ class Renderer {
     }
 
     drawPlayer() {
-        let x = player.x - gameState.cameraX;
-        let y = player.y;
+        let screenX = player.x - gameState.cameraX;
+        let screenY = player.y - gameState.cameraY;
 
         this.ctx.save();
+        this.ctx.translate(screenX, screenY);
 
-        // Flip if facing left
-        if (player.facing === -1) {
-            this.ctx.translate(x + player.w, y);
-            this.ctx.scale(-1, 1);
-            x = 0;
+        // Draw based on facing direction
+        if (player.facing === 'left' || player.facing === 'right') {
+            // Side view
+            let flip = player.facing === 'left';
+            if (flip) {
+                this.ctx.translate(player.w, 0);
+                this.ctx.scale(-1, 1);
+            }
+
+            // Hair
+            this.ctx.fillStyle = '#4a3728';
+            this.ctx.fillRect(1, 0, 10, 3);
+            this.ctx.fillRect(1, 0, 2, 6);
+
+            // Head
+            this.ctx.fillStyle = '#f5c99b';
+            this.ctx.fillRect(2, 0, 8, 6);
+
+            // Eye (side view - one eye visible)
+            this.ctx.fillStyle = '#000';
+            this.ctx.fillRect(7, 2, 1, 1);
+
+            // Glasses (side view)
+            this.ctx.fillStyle = '#333';
+            this.ctx.fillRect(6, 2, 3, 2);
+
         } else {
-            this.ctx.translate(x, y);
-            x = 0;
+            // Front/back view
+            // Hair
+            this.ctx.fillStyle = '#4a3728';
+            this.ctx.fillRect(1, 0, 10, 3);
+
+            // Head
+            this.ctx.fillStyle = '#f5c99b';
+            this.ctx.fillRect(2, 0, 8, 6);
+
+            if (player.facing === 'down') {
+                // Front view - eyes and glasses
+                this.ctx.fillStyle = '#000';
+                this.ctx.fillRect(3, 2, 1, 1);
+                this.ctx.fillRect(7, 2, 1, 1);
+
+                // Glasses
+                this.ctx.fillStyle = '#333';
+                this.ctx.fillRect(2, 2, 3, 2);
+                this.ctx.fillRect(6, 2, 3, 2);
+                this.ctx.fillRect(5, 2, 1, 1);
+            } else {
+                // Back view - back of head
+                this.ctx.fillStyle = '#4a3728';
+                this.ctx.fillRect(2, 1, 8, 5);
+            }
         }
-
-        // Head (Skin tone)
-        this.ctx.fillStyle = '#f5c99b';
-        this.ctx.fillRect(x + 2, y, 8, 6);
-
-        // Hair (Brown)
-        this.ctx.fillStyle = '#4a3728';
-        this.ctx.fillRect(x + 1, y, 10, 3); // Top of head
-        this.ctx.fillRect(x + 1, y, 2, 6); // Left sideburns
-        this.ctx.fillRect(x + 9, y, 2, 6); // Right sideburns
-
-        // Eyes
-        this.ctx.fillStyle = '#000';
-        this.ctx.fillRect(x + 3, y + 2, 1, 1);
-        this.ctx.fillRect(x + 7, y + 2, 1, 1);
-
-        // Glasses frames
-        this.ctx.fillStyle = '#333';
-        this.ctx.fillRect(x + 2, y + 2, 3, 2); // Left lens frame
-        this.ctx.fillRect(x + 6, y + 2, 3, 2); // Right lens frame
-        this.ctx.fillRect(x + 5, y + 2, 1, 1); // Bridge
 
         // Body (Black t-shirt)
         this.ctx.fillStyle = '#1a1a1a';
-        this.ctx.fillRect(x + 2, y + 6, 8, 8);
+        this.ctx.fillRect(2, 6, 8, 8);
 
-        // T-shirt highlights for depth
+        // T-shirt highlights
         this.ctx.fillStyle = '#2a2a2a';
-        this.ctx.fillRect(x + 2, y + 6, 8, 1);
+        this.ctx.fillRect(2, 6, 8, 1);
 
         // Legs (Blue jeans - animated)
-        this.ctx.fillStyle = '#2c5aa0'; // Blue jeans color
+        this.ctx.fillStyle = '#2c5aa0';
         if (player.frame === 0) {
-            this.ctx.fillRect(x + 3, y + 14, 2, 4);
-            this.ctx.fillRect(x + 7, y + 14, 2, 4);
+            this.ctx.fillRect(3, 14, 2, 4);
+            this.ctx.fillRect(7, 14, 2, 4);
         } else {
-            this.ctx.fillRect(x + 2, y + 14, 2, 4);
-            this.ctx.fillRect(x + 8, y + 14, 2, 4);
+            this.ctx.fillRect(2, 14, 2, 4);
+            this.ctx.fillRect(8, 14, 2, 4);
         }
 
         // Jeans highlights
         this.ctx.fillStyle = '#3d6eb8';
         if (player.frame === 0) {
-            this.ctx.fillRect(x + 3, y + 14, 1, 1);
-            this.ctx.fillRect(x + 7, y + 14, 1, 1);
+            this.ctx.fillRect(3, 14, 1, 1);
+            this.ctx.fillRect(7, 14, 1, 1);
         } else {
-            this.ctx.fillRect(x + 2, y + 14, 1, 1);
-            this.ctx.fillRect(x + 8, y + 14, 1, 1);
+            this.ctx.fillRect(2, 14, 1, 1);
+            this.ctx.fillRect(8, 14, 1, 1);
         }
 
         this.ctx.restore();
