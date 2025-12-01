@@ -25,65 +25,65 @@ const poemLines = [
     "the gods wait to delight in you."
 ];
 
-// Interactive objects in sequential order - natural exploration path
+// 19 UNIQUE Interactive objects - each visually distinct
 // Player starts at (160, 90), items arranged in a discoverable sequence
 const interactables = [
     // Line 0: "your life is your life"
-    { x: 200, y: 120, type: 'stone', lineIndex: 0, discovered: false },
+    { x: 200, y: 120, type: 'signpost', lineIndex: 0, discovered: false },
 
     // Line 1: "don't let it be clubbed into dank submission"
-    { x: 120, y: 200, type: 'sign', lineIndex: 1, discovered: false },
+    { x: 120, y: 200, type: 'cairn', lineIndex: 1, discovered: false },
 
     // Line 2: "be on the watch"
-    { x: 180, y: 300, type: 'candle', lineIndex: 2, discovered: false },
+    { x: 180, y: 300, type: 'hiker', lineIndex: 2, discovered: false },
 
     // Line 3: "there are ways out"
-    { x: 280, y: 350, type: 'flower', lineIndex: 3, discovered: false },
+    { x: 280, y: 350, type: 'plane_wreck', lineIndex: 3, discovered: false },
 
     // Line 4: "there is a light somewhere"
-    { x: 380, y: 280, type: 'torch', lineIndex: 4, discovered: false },
+    { x: 380, y: 280, type: 'lighthouse', lineIndex: 4, discovered: false },
 
     // Line 5: "it may not be much light but"
-    { x: 450, y: 200, type: 'book', lineIndex: 5, discovered: false },
+    { x: 450, y: 200, type: 'weather_station', lineIndex: 5, discovered: false },
 
     // Line 6: "it beats the darkness"
-    { x: 520, y: 120, type: 'crystal', lineIndex: 6, discovered: false },
+    { x: 520, y: 120, type: 'geothermal_vent', lineIndex: 6, discovered: false },
 
     // Line 7: "be on the watch"
-    { x: 620, y: 150, type: 'mirror', lineIndex: 7, discovered: false },
+    { x: 620, y: 150, type: 'telescope', lineIndex: 7, discovered: false },
 
     // Line 8: "the gods will offer you chances"
-    { x: 700, y: 220, type: 'statue', lineIndex: 8, discovered: false },
+    { x: 700, y: 220, type: 'viking_statue', lineIndex: 8, discovered: false },
 
     // Line 9: "know them"
-    { x: 680, y: 320, type: 'person', lineIndex: 9, discovered: false },
+    { x: 680, y: 320, type: 'tourist', lineIndex: 9, discovered: false },
 
     // Line 10: "take them"
-    { x: 600, y: 400, type: 'person', lineIndex: 10, discovered: false },
+    { x: 600, y: 400, type: 'globe', lineIndex: 10, discovered: false },
 
     // Line 11: "you can't beat death but"
-    { x: 500, y: 450, type: 'person', lineIndex: 11, discovered: false },
+    { x: 500, y: 450, type: 'ice_sculpture', lineIndex: 11, discovered: false },
 
     // Line 12: "you can beat death in life, sometimes"
-    { x: 400, y: 500, type: 'tree', lineIndex: 12, discovered: false },
+    { x: 400, y: 500, type: 'flag_pole', lineIndex: 12, discovered: false },
 
     // Line 13: "and the more often you learn to do it"
-    { x: 300, y: 520, type: 'star', lineIndex: 13, discovered: false },
+    { x: 300, y: 520, type: 'abandoned_car', lineIndex: 13, discovered: false },
 
     // Line 14: "the more light there will be"
-    { x: 200, y: 480, type: 'fountain', lineIndex: 14, discovered: false },
+    { x: 200, y: 480, type: 'bench', lineIndex: 14, discovered: false },
 
     // Line 15: "your life is your life"
-    { x: 120, y: 420, type: 'heart', lineIndex: 15, discovered: false },
+    { x: 120, y: 420, type: 'ruins', lineIndex: 15, discovered: false },
 
     // Line 16: "know it while you have it"
-    { x: 80, y: 320, type: 'crown', lineIndex: 16, discovered: false },
+    { x: 80, y: 320, type: 'whale_bones', lineIndex: 16, discovered: false },
 
     // Line 17: "you are marvelous"
-    { x: 100, y: 220, type: 'sun', lineIndex: 17, discovered: false },
+    { x: 100, y: 220, type: 'hot_spring', lineIndex: 17, discovered: false },
 
     // Line 18: "the gods wait to delight in you"
-    { x: 150, y: 120, type: 'light', lineIndex: 18, discovered: false }
+    { x: 150, y: 120, type: 'viewpoint', lineIndex: 18, discovered: false }
 ];
 
 // Game state

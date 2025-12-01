@@ -29,7 +29,7 @@ class Renderer {
     }
 
     drawBackground() {
-        // Iceland sky - light blue with white clouds
+        // STATIC Iceland sky - light blue with white clouds (no camera movement)
         let skyColor = '#87CEEB'; // Light blue sky
         let horizonColor = '#B0D8F0'; // Lighter at horizon
 
@@ -40,10 +40,10 @@ class Renderer {
         this.ctx.fillStyle = gradient;
         this.ctx.fillRect(0, 0, gameState.width, gameState.height);
 
-        // White clouds
+        // STATIC white clouds (no parallax)
         this.ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
         for (let i = 0; i < 8; i++) {
-            let cx = (i * 80 - gameState.cameraX * 0.1) % (gameState.width + 100);
+            let cx = (i * 80) % (gameState.width + 100);
             let cy = 20 + (i % 3) * 15;
             this.ctx.beginPath();
             this.ctx.arc(cx, cy, 15 + (i % 2) * 5, 0, Math.PI * 2);
@@ -66,28 +66,64 @@ class Renderer {
     }
 
     drawGround() {
-        // Iceland terrain - yellow-green grass
+        // MIDGROUND: Yellow-green grass with rocks (1x parallax - moves with player)
         let camX = gameState.cameraX;
         let camY = gameState.cameraY;
 
-        // Base ground (yellow-green grass)
+        // Base ground (yellow-green grass) - playable area
         this.ctx.fillStyle = '#8FBC4F'; // Yellow-green grass
-        this.ctx.fillRect(0, gameState.height * 0.65, gameState.width, gameState.height * 0.35);
+        this.ctx.fillRect(0, gameState.height * 0.5, gameState.width, gameState.height * 0.3);
 
-        // Darker grass patches for texture
+        // Darker grass patches for texture (1x parallax)
         this.ctx.fillStyle = '#7DA83E';
-        for (let i = 0; i < 20; i++) {
-            let x = (i * 50 - camX * 0.5) % gameState.width;
-            let y = gameState.height * 0.65 + (i % 4) * 10;
-            this.ctx.fillRect(x, y, 35, 15);
+        for (let i = 0; i < 25; i++) {
+            let x = (i * 50 - camX) % (gameState.width + 100) - 50;
+            let y = gameState.height * 0.5 + (i % 5) * 15 - camY;
+            if (y > gameState.height * 0.5 && y < gameState.height * 0.8) {
+                this.ctx.fillRect(x, y, 35, 15);
+            }
         }
 
-        // Lighter grass highlights
-        this.ctx.fillStyle = '#A5D96A';
-        for (let i = 0; i < 15; i++) {
-            let x = (i * 60 + 20 - camX * 0.4) % gameState.width;
-            let y = gameState.height * 0.7 + (i % 3) * 8;
-            this.ctx.fillRect(x, y, 25, 12);
+        // Grey rocks scattered on grass (1x parallax)
+        this.ctx.fillStyle = '#888888';
+        for (let i = 0; i < 20; i++) {
+            let rx = (i * 60 - camX) % (gameState.width + 100) - 50;
+            let ry = gameState.height * 0.55 + (i % 6) * 12 - camY;
+            if (ry > gameState.height * 0.5 && ry < gameState.height * 0.8) {
+                this.ctx.fillRect(rx, ry, 10 + (i % 3) * 4, 7);
+                // Rock highlight
+                this.ctx.fillStyle = '#AAAAAA';
+                this.ctx.fillRect(rx + 1, ry + 1, 3, 2);
+                this.ctx.fillStyle = '#888888';
+            }
+        }
+    }
+
+    drawSea() {
+        // FOREGROUND: Sea with FAST parallax (1.5x speed) - very foreground
+        let camX = gameState.cameraX;
+        let camY = gameState.cameraY;
+
+        // Sea base (darker blue)
+        this.ctx.fillStyle = '#2E5A8F';
+        this.ctx.fillRect(0, gameState.height * 0.8, gameState.width, gameState.height * 0.2);
+
+        // Water waves (fast parallax)
+        this.ctx.fillStyle = '#4A7AB8';
+        for (let i = 0; i < 10; i++) {
+            let wx = (i * 70 - camX * 1.5) % (gameState.width + 100) - 50;
+            let wy = gameState.height * 0.82 + Math.sin(Date.now() / 500 + i) * 3;
+            this.ctx.beginPath();
+            this.ctx.arc(wx, wy, 25, 0, Math.PI, false);
+            this.ctx.fill();
+        }
+
+        // White foam on waves
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        for (let i = 0; i < 8; i++) {
+            let fx = (i * 80 + 20 - camX * 1.5) % (gameState.width + 100) - 50;
+            let fy = gameState.height * 0.81 + Math.sin(Date.now() / 400 + i) * 2;
+            this.ctx.fillRect(fx, fy, 15, 3);
         }
     }
 
@@ -95,57 +131,25 @@ class Renderer {
         const camX = gameState.cameraX;
         const camY = gameState.cameraY;
 
-        // Iceland landscape features
-
-        // Distant mountains (grey with white snow caps)
+        // BACKGROUND LAYER: Distant mountains with SLOW parallax (0.2x speed)
         this.ctx.fillStyle = '#6B7280'; // Grey mountains
         for (let i = 0; i < 8; i++) {
             let mx = (i * 120 - camX * 0.2) % (gameState.width + 200) - 100;
             let mh = 40 + (i % 3) * 20;
             this.ctx.beginPath();
-            this.ctx.moveTo(mx, gameState.height * 0.45);
-            this.ctx.lineTo(mx + 60, gameState.height * 0.45 - mh);
-            this.ctx.lineTo(mx + 120, gameState.height * 0.45);
+            this.ctx.moveTo(mx, gameState.height * 0.4);
+            this.ctx.lineTo(mx + 60, gameState.height * 0.4 - mh);
+            this.ctx.lineTo(mx + 120, gameState.height * 0.4);
             this.ctx.fill();
 
             // White snow caps
             this.ctx.fillStyle = '#FFFFFF';
             this.ctx.beginPath();
-            this.ctx.moveTo(mx + 40, gameState.height * 0.45 - mh * 0.7);
-            this.ctx.lineTo(mx + 60, gameState.height * 0.45 - mh);
-            this.ctx.lineTo(mx + 80, gameState.height * 0.45 - mh * 0.7);
+            this.ctx.moveTo(mx + 40, gameState.height * 0.4 - mh * 0.7);
+            this.ctx.lineTo(mx + 60, gameState.height * 0.4 - mh);
+            this.ctx.lineTo(mx + 80, gameState.height * 0.4 - mh * 0.7);
             this.ctx.fill();
             this.ctx.fillStyle = '#6B7280';
-        }
-
-        // Rivers/lagoons (darker blue water)
-        this.ctx.fillStyle = '#2E5A8F'; // Darker blue for water
-        for (let i = 0; i < 3; i++) {
-            let wx = (i * 200 - camX * 0.6) % (gameState.width + 150);
-            let wy = gameState.height * 0.6 - camY * 0.4;
-            if (wy > 0 && wy < gameState.height) {
-                // River/lagoon shape
-                this.ctx.beginPath();
-                this.ctx.ellipse(wx, wy, 60, 20, 0, 0, Math.PI * 2);
-                this.ctx.fill();
-
-                // Water shimmer (lighter blue)
-                this.ctx.fillStyle = '#5A8FC7';
-                this.ctx.beginPath();
-                this.ctx.ellipse(wx - 10, wy - 5, 20, 8, 0, 0, Math.PI * 2);
-                this.ctx.fill();
-                this.ctx.fillStyle = '#2E5A8F';
-            }
-        }
-
-        // Grey rocks scattered on ground
-        this.ctx.fillStyle = '#888888';
-        for (let i = 0; i < 15; i++) {
-            let rx = (i * 60 - camX) % (gameState.width + 80) - 40;
-            let ry = gameState.height * 0.7 + (i % 4) * 10 - camY * 0.5;
-            if (ry > gameState.height * 0.65 && ry < gameState.height) {
-                this.ctx.fillRect(rx, ry, 12 + (i % 3) * 5, 8);
-            }
         }
     }
 
@@ -200,7 +204,7 @@ class Renderer {
                 // Add shadow to text
                 this.ctx.shadowColor = '#000';
                 this.ctx.shadowBlur = 4;
-                this.ctx.fillText('[Z]', screenX, obj.y - 22);
+                this.ctx.fillText('Tap', screenX, obj.y - 22);
                 this.ctx.shadowBlur = 0;
 
                 // Enhanced glowing effect with multiple rings
@@ -231,112 +235,252 @@ class Renderer {
         this.ctx.save();
 
         switch(type) {
-            case 'stone':
-                this.ctx.fillStyle = '#555';
+            case 'signpost': // Wooden direction sign
+                this.ctx.fillStyle = '#8b4513';
+                this.ctx.fillRect(x - 2, y - 20, 4, 20); // Post
+                this.ctx.fillStyle = '#a0743d';
+                this.ctx.fillRect(x - 10, y - 25, 20, 6); // Sign board
+                this.ctx.fillStyle = '#fff';
+                this.ctx.font = '8px VT323';
+                this.ctx.textAlign = 'center';
+                this.ctx.fillText('→', x, y - 21);
+                break;
+
+            case 'cairn': // Stacked stones
+                this.ctx.fillStyle = '#666';
                 this.ctx.fillRect(x - 6, y - 8, 12, 8);
-                break;
-            case 'candle':
-                this.ctx.fillStyle = '#ddd';
-                this.ctx.fillRect(x - 2, y - 10, 4, 10);
-                this.ctx.fillStyle = '#ff0';
-                this.ctx.fillRect(x - 1, y - 12, 2, 2);
-                break;
-            case 'sign':
-                this.ctx.fillStyle = '#8b4513';
-                this.ctx.fillRect(x - 2, y - 15, 4, 15);
-                this.ctx.fillStyle = '#654321';
-                this.ctx.fillRect(x - 8, y - 20, 16, 8);
-                break;
-            case 'flower':
-                this.ctx.fillStyle = '#2d5';
-                this.ctx.fillRect(x - 1, y - 8, 2, 8);
-                this.ctx.fillStyle = '#f5f';
-                this.ctx.beginPath();
-                this.ctx.arc(x, y - 10, 3, 0, Math.PI * 2);
-                this.ctx.fill();
-                break;
-            case 'torch':
-                this.ctx.fillStyle = '#654';
-                this.ctx.fillRect(x - 2, y - 15, 4, 15);
-                this.ctx.fillStyle = '#fa0';
-                this.ctx.beginPath();
-                this.ctx.arc(x, y - 16, 4, 0, Math.PI * 2);
-                this.ctx.fill();
-                break;
-            case 'book':
-                this.ctx.fillStyle = '#8b4513';
-                this.ctx.fillRect(x - 5, y - 8, 10, 8);
-                this.ctx.strokeStyle = '#fff';
-                this.ctx.strokeRect(x - 5, y - 8, 10, 8);
-                break;
-            case 'crystal':
-                this.ctx.fillStyle = '#0ff';
-                this.ctx.beginPath();
-                this.ctx.moveTo(x, y - 12);
-                this.ctx.lineTo(x - 4, y - 4);
-                this.ctx.lineTo(x + 4, y - 4);
-                this.ctx.closePath();
-                this.ctx.fill();
-                break;
-            case 'mirror':
-                this.ctx.fillStyle = '#444';
-                this.ctx.fillRect(x - 6, y - 15, 12, 15);
-                this.ctx.fillStyle = '#aaf';
-                this.ctx.fillRect(x - 5, y - 14, 10, 12);
-                break;
-            case 'statue':
                 this.ctx.fillStyle = '#777';
-                this.ctx.fillRect(x - 4, y - 18, 8, 18);
+                this.ctx.fillRect(x - 5, y - 14, 10, 6);
+                this.ctx.fillStyle = '#555';
+                this.ctx.fillRect(x - 4, y - 18, 8, 4);
+                break;
+
+            case 'hiker': // Person with backpack
+                this.ctx.fillStyle = '#8b4513'; // Brown backpack
+                this.ctx.fillRect(x - 5, y - 15, 10, 8);
+                this.ctx.fillStyle = '#f5c99b'; // Skin
                 this.ctx.beginPath();
-                this.ctx.arc(x, y - 20, 4, 0, Math.PI * 2);
+                this.ctx.arc(x, y - 18, 4, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.fillStyle = '#4a90e2'; // Blue jacket
+                this.ctx.fillRect(x - 4, y - 12, 8, 8);
+                this.ctx.fillStyle = '#333'; // Legs
+                this.ctx.fillRect(x - 4, y - 4, 3, 6);
+                this.ctx.fillRect(x + 1, y - 4, 3, 6);
+                break;
+
+            case 'plane_wreck': // Crashed plane piece
+                this.ctx.fillStyle = '#999'; // Metal
+                this.ctx.fillRect(x - 12, y - 10, 24, 8);
+                this.ctx.fillStyle = '#666';
+                this.ctx.fillRect(x - 10, y - 12, 8, 4); // Wing piece
+                this.ctx.fillStyle = '#f00'; // Red stripe
+                this.ctx.fillRect(x - 12, y - 8, 24, 2);
+                // Damage marks
+                this.ctx.fillStyle = '#333';
+                this.ctx.fillRect(x - 5, y - 9, 3, 3);
+                break;
+
+            case 'lighthouse': // Tall lighthouse
+                this.ctx.fillStyle = '#fff';
+                this.ctx.fillRect(x - 4, y - 25, 8, 25); // Tower
+                this.ctx.fillStyle = '#f00'; // Red top
+                this.ctx.fillRect(x - 5, y - 28, 10, 4);
+                this.ctx.fillStyle = '#ff0'; // Light
+                this.ctx.beginPath();
+                this.ctx.arc(x, y - 26, 3, 0, Math.PI * 2);
                 this.ctx.fill();
                 break;
-            case 'person':
-                this.drawNPC(x, y - 5, 1);
-                break;
-            case 'tree':
-                this.ctx.fillStyle = '#654';
-                this.ctx.fillRect(x - 3, y - 15, 6, 15);
-                this.ctx.fillStyle = '#2a2';
-                this.ctx.beginPath();
-                this.ctx.arc(x, y - 18, 8, 0, Math.PI * 2);
-                this.ctx.fill();
-                break;
-            case 'star':
-                this.ctx.fillStyle = '#ff0';
-                this.drawStar(x, y - 10, 5, 5, 2);
-                break;
-            case 'fountain':
+
+            case 'weather_station': // Meteorological equipment
+                this.ctx.fillStyle = '#ddd';
+                this.ctx.fillRect(x - 6, y - 15, 12, 15); // Box
+                this.ctx.fillStyle = '#333';
+                this.ctx.fillRect(x - 5, y - 14, 10, 2); // Vents
+                this.ctx.fillRect(x - 5, y - 10, 10, 2);
+                this.ctx.fillStyle = '#0a0'; // Green light
+                this.ctx.fillRect(x - 2, y - 6, 4, 2);
+                // Antenna
                 this.ctx.fillStyle = '#888';
-                this.ctx.fillRect(x - 8, y - 8, 16, 8);
-                this.ctx.fillStyle = '#59f';
-                for(let i = 0; i < 3; i++) {
-                    this.ctx.fillRect(x - 4 + i * 3, y - 12 - Math.random() * 4, 2, 4);
+                this.ctx.fillRect(x - 1, y - 22, 2, 8);
+                break;
+
+            case 'geothermal_vent': // Steam coming from ground
+                this.ctx.fillStyle = '#666'; // Rock base
+                this.ctx.fillRect(x - 8, y - 6, 16, 6);
+                // Steam
+                for(let i = 0; i < 4; i++) {
+                    this.ctx.fillStyle = `rgba(200, 200, 220, ${0.5 - i * 0.1})`;
+                    this.ctx.fillRect(x - 3 + i, y - 10 - i * 3, 6 - i, 4);
                 }
                 break;
-            case 'heart':
-                this.ctx.fillStyle = '#f55';
-                this.drawHeart(x, y - 10, 6);
+
+            case 'telescope': // Observatory telescope
+                this.ctx.fillStyle = '#444';
+                this.ctx.fillRect(x - 8, y - 8, 16, 6); // Base
+                this.ctx.fillStyle = '#666';
+                // Angled telescope
+                this.ctx.fillRect(x - 2, y - 18, 4, 12);
+                this.ctx.fillStyle = '#88f'; // Lens
+                this.ctx.fillRect(x - 3, y - 19, 6, 2);
                 break;
-            case 'sun':
-                this.ctx.fillStyle = '#fd0';
+
+            case 'viking_statue': // Norse warrior statue
+                this.ctx.fillStyle = '#888'; // Stone
+                this.ctx.fillRect(x - 6, y - 22, 12, 22); // Body
                 this.ctx.beginPath();
-                this.ctx.arc(x, y - 10, 6, 0, Math.PI * 2);
+                this.ctx.arc(x, y - 24, 5, 0, Math.PI * 2);
+                this.ctx.fill();
+                // Horned helmet
+                this.ctx.fillRect(x - 7, y - 28, 3, 4);
+                this.ctx.fillRect(x + 4, y - 28, 3, 4);
+                // Shield
+                this.ctx.fillStyle = '#c8102e';
+                this.ctx.beginPath();
+                this.ctx.arc(x - 8, y - 14, 4, 0, Math.PI * 2);
                 this.ctx.fill();
                 break;
-            case 'crown':
-                this.ctx.fillStyle = '#fd0';
-                this.ctx.fillRect(x - 6, y - 8, 12, 4);
-                this.ctx.fillRect(x - 5, y - 12, 2, 4);
-                this.ctx.fillRect(x - 1, y - 12, 2, 4);
-                this.ctx.fillRect(x + 3, y - 12, 2, 4);
+
+            case 'tourist': // Tourist with camera
+                this.ctx.fillStyle = '#f5c99b'; // Skin
+                this.ctx.beginPath();
+                this.ctx.arc(x, y - 18, 4, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.fillStyle = '#e74c3c'; // Red shirt
+                this.ctx.fillRect(x - 5, y - 14, 10, 10);
+                this.ctx.fillStyle = '#333'; // Camera
+                this.ctx.fillRect(x + 4, y - 12, 4, 3);
+                this.ctx.fillStyle = '#666'; // Lens
+                this.ctx.fillRect(x + 7, y - 11, 2, 1);
                 break;
-            case 'light':
-                let gradient = this.ctx.createRadialGradient(x, y - 10, 2, x, y - 10, 15);
-                gradient.addColorStop(0, '#fff');
-                gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-                this.ctx.fillStyle = gradient;
-                this.ctx.fillRect(x - 15, y - 25, 30, 30);
+
+            case 'globe': // World globe monument
+                this.ctx.fillStyle = '#4a90e2'; // Blue ocean
+                this.ctx.beginPath();
+                this.ctx.arc(x, y - 14, 8, 0, Math.PI * 2);
+                this.ctx.fill();
+                // Green continents
+                this.ctx.fillStyle = '#2ecc71';
+                this.ctx.fillRect(x - 4, y - 16, 6, 4);
+                this.ctx.fillRect(x + 1, y - 12, 4, 3);
+                // Stand
+                this.ctx.fillStyle = '#8b4513';
+                this.ctx.fillRect(x - 2, y - 6, 4, 6);
+                break;
+
+            case 'ice_sculpture': // Ice/crystal formation
+                this.ctx.fillStyle = '#b3e5fc'; // Light blue ice
+                this.ctx.beginPath();
+                this.ctx.moveTo(x, y - 20);
+                this.ctx.lineTo(x - 6, y - 10);
+                this.ctx.lineTo(x - 3, y - 8);
+                this.ctx.lineTo(x, y - 14);
+                this.ctx.lineTo(x + 3, y - 8);
+                this.ctx.lineTo(x + 6, y - 10);
+                this.ctx.closePath();
+                this.ctx.fill();
+                // Shine
+                this.ctx.fillStyle = '#fff';
+                this.ctx.fillRect(x - 2, y - 16, 2, 4);
+                break;
+
+            case 'flag_pole': // Icelandic flag
+                this.ctx.fillStyle = '#666'; // Pole
+                this.ctx.fillRect(x - 1, y - 28, 2, 28);
+                // Flag (Iceland colors: blue, white, red)
+                this.ctx.fillStyle = '#02529c'; // Blue
+                this.ctx.fillRect(x + 1, y - 26, 12, 8);
+                this.ctx.fillStyle = '#fff'; // White cross
+                this.ctx.fillRect(x + 1, y - 22, 12, 2);
+                this.ctx.fillRect(x + 4, y - 26, 2, 8);
+                this.ctx.fillStyle = '#dc1e35'; // Red cross
+                this.ctx.fillRect(x + 1, y - 21, 12, 1);
+                this.ctx.fillRect(x + 5, y - 26, 1, 8);
+                break;
+
+            case 'abandoned_car': // Old car wreck
+                this.ctx.fillStyle = '#8b0000'; // Rusty red
+                this.ctx.fillRect(x - 10, y - 8, 20, 8); // Body
+                this.ctx.fillRect(x - 6, y - 12, 12, 5); // Roof
+                // Windows
+                this.ctx.fillStyle = '#4a90e2';
+                this.ctx.fillRect(x - 5, y - 11, 4, 3);
+                this.ctx.fillRect(x + 1, y - 11, 4, 3);
+                // Wheels
+                this.ctx.fillStyle = '#333';
+                this.ctx.fillRect(x - 8, y, 3, 3);
+                this.ctx.fillRect(x + 5, y, 3, 3);
+                break;
+
+            case 'bench': // Park bench
+                this.ctx.fillStyle = '#8b4513'; // Wood
+                // Backrest
+                this.ctx.fillRect(x - 10, y - 14, 20, 2);
+                // Seat
+                this.ctx.fillRect(x - 10, y - 8, 20, 3);
+                // Legs
+                this.ctx.fillRect(x - 9, y - 5, 2, 5);
+                this.ctx.fillRect(x + 7, y - 5, 2, 5);
+                // Support
+                this.ctx.fillRect(x - 9, y - 14, 2, 7);
+                this.ctx.fillRect(x + 7, y - 14, 2, 7);
+                break;
+
+            case 'ruins': // Ancient stone structure
+                this.ctx.fillStyle = '#777'; // Grey stone
+                this.ctx.fillRect(x - 12, y - 12, 8, 12); // Left wall
+                this.ctx.fillRect(x + 4, y - 18, 8, 18); // Right wall (taller)
+                this.ctx.fillRect(x - 12, y - 16, 24, 4); // Top beam (broken)
+                // Weathering
+                this.ctx.fillStyle = '#999';
+                this.ctx.fillRect(x - 11, y - 11, 6, 2);
+                this.ctx.fillRect(x + 5, y - 10, 6, 2);
+                break;
+
+            case 'whale_bones': // Large whale skeleton
+                this.ctx.fillStyle = '#e0e0e0'; // Bone white
+                // Skull
+                this.ctx.fillRect(x - 8, y - 12, 10, 8);
+                // Ribs
+                for(let i = 0; i < 4; i++) {
+                    this.ctx.fillRect(x + 2 + i * 3, y - 10, 2, 8);
+                }
+                // Vertebrae
+                this.ctx.fillRect(x + 14, y - 6, 4, 4);
+                this.ctx.fillRect(x + 18, y - 4, 3, 3);
+                break;
+
+            case 'hot_spring': // Geothermal pool
+                this.ctx.fillStyle = '#4fc3f7'; // Turquoise water
+                this.ctx.beginPath();
+                this.ctx.ellipse(x, y - 6, 12, 8, 0, 0, Math.PI * 2);
+                this.ctx.fill();
+                // Steam
+                this.ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                for(let i = 0; i < 3; i++) {
+                    this.ctx.fillRect(x - 6 + i * 6, y - 12 - i * 2, 4, 3);
+                }
+                // Rocks around edge
+                this.ctx.fillStyle = '#666';
+                this.ctx.fillRect(x - 13, y - 8, 4, 4);
+                this.ctx.fillRect(x + 9, y - 8, 4, 4);
+                break;
+
+            case 'viewpoint': // Scenic viewpoint platform
+                this.ctx.fillStyle = '#8b4513'; // Wood deck
+                this.ctx.fillRect(x - 12, y - 4, 24, 4);
+                // Railing
+                this.ctx.fillStyle = '#654321';
+                this.ctx.fillRect(x - 12, y - 10, 2, 6);
+                this.ctx.fillRect(x + 10, y - 10, 2, 6);
+                this.ctx.fillRect(x - 12, y - 10, 24, 2);
+                // Sign
+                this.ctx.fillStyle = '#2196f3';
+                this.ctx.fillRect(x - 6, y - 16, 12, 8);
+                this.ctx.fillStyle = '#fff';
+                this.ctx.font = '8px VT323';
+                this.ctx.textAlign = 'center';
+                this.ctx.fillText('VIEW', x, y - 10);
                 break;
         }
 
@@ -492,12 +636,14 @@ class Renderer {
         this.clear();
         this.applyShake();
 
-        this.drawBackground();
-        this.drawEnvironment();
-        this.drawGround();
-        this.drawInteractables();
-        this.drawParticles();
-        this.drawPlayer();
+        // Layer order: Sky → Mountains (slow) → Grass+Rocks (normal) → Player → Sea (fast)
+        this.drawBackground();      // Static sky
+        this.drawEnvironment();     // Mountains (0.2x parallax)
+        this.drawGround();          // Grass + rocks (1x parallax)
+        this.drawInteractables();   // Items on grass
+        this.drawParticles();       // Effects
+        this.drawPlayer();          // Player sprite
+        this.drawSea();             // Sea in foreground (1.5x parallax)
 
         this.removeShake();
 
