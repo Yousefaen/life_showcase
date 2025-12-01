@@ -25,27 +25,65 @@ const poemLines = [
     "the gods wait to delight in you."
 ];
 
-// Interactive objects scattered across 2D world (800x600)
+// Interactive objects in sequential order - natural exploration path
+// Player starts at (160, 90), items arranged in a discoverable sequence
 const interactables = [
-    { x: 120, y: 450, type: 'stone', lineIndex: 0, discovered: false },
-    { x: 250, y: 320, type: 'candle', lineIndex: 1, discovered: false },
-    { x: 180, y: 180, type: 'sign', lineIndex: 2, discovered: false },
-    { x: 380, y: 420, type: 'flower', lineIndex: 3, discovered: false },
-    { x: 450, y: 250, type: 'torch', lineIndex: 4, discovered: false },
-    { x: 320, y: 90, type: 'book', lineIndex: 5, discovered: false },
-    { x: 580, y: 380, type: 'crystal', lineIndex: 6, discovered: false },
-    { x: 520, y: 150, type: 'mirror', lineIndex: 7, discovered: false },
-    { x: 680, y: 480, type: 'statue', lineIndex: 8, discovered: false },
-    { x: 420, y: 520, type: 'person', lineIndex: 9, discovered: false },
-    { x: 620, y: 220, type: 'person', lineIndex: 10, discovered: false },
-    { x: 150, y: 520, type: 'person', lineIndex: 11, discovered: false },
-    { x: 720, y: 320, type: 'tree', lineIndex: 12, discovered: false },
-    { x: 280, y: 560, type: 'star', lineIndex: 13, discovered: false },
-    { x: 550, y: 70, type: 'fountain', lineIndex: 14, discovered: false },
-    { x: 760, y: 180, type: 'heart', lineIndex: 15, discovered: false },
-    { x: 670, y: 560, type: 'sun', lineIndex: 16, discovered: false },
-    { x: 90, y: 280, type: 'crown', lineIndex: 17, discovered: false },
-    { x: 740, y: 80, type: 'light', lineIndex: 18, discovered: false }
+    // Line 0: "your life is your life"
+    { x: 200, y: 120, type: 'stone', lineIndex: 0, discovered: false },
+
+    // Line 1: "don't let it be clubbed into dank submission"
+    { x: 120, y: 200, type: 'sign', lineIndex: 1, discovered: false },
+
+    // Line 2: "be on the watch"
+    { x: 180, y: 300, type: 'candle', lineIndex: 2, discovered: false },
+
+    // Line 3: "there are ways out"
+    { x: 280, y: 350, type: 'flower', lineIndex: 3, discovered: false },
+
+    // Line 4: "there is a light somewhere"
+    { x: 380, y: 280, type: 'torch', lineIndex: 4, discovered: false },
+
+    // Line 5: "it may not be much light but"
+    { x: 450, y: 200, type: 'book', lineIndex: 5, discovered: false },
+
+    // Line 6: "it beats the darkness"
+    { x: 520, y: 120, type: 'crystal', lineIndex: 6, discovered: false },
+
+    // Line 7: "be on the watch"
+    { x: 620, y: 150, type: 'mirror', lineIndex: 7, discovered: false },
+
+    // Line 8: "the gods will offer you chances"
+    { x: 700, y: 220, type: 'statue', lineIndex: 8, discovered: false },
+
+    // Line 9: "know them"
+    { x: 680, y: 320, type: 'person', lineIndex: 9, discovered: false },
+
+    // Line 10: "take them"
+    { x: 600, y: 400, type: 'person', lineIndex: 10, discovered: false },
+
+    // Line 11: "you can't beat death but"
+    { x: 500, y: 450, type: 'person', lineIndex: 11, discovered: false },
+
+    // Line 12: "you can beat death in life, sometimes"
+    { x: 400, y: 500, type: 'tree', lineIndex: 12, discovered: false },
+
+    // Line 13: "and the more often you learn to do it"
+    { x: 300, y: 520, type: 'star', lineIndex: 13, discovered: false },
+
+    // Line 14: "the more light there will be"
+    { x: 200, y: 480, type: 'fountain', lineIndex: 14, discovered: false },
+
+    // Line 15: "your life is your life"
+    { x: 120, y: 420, type: 'heart', lineIndex: 15, discovered: false },
+
+    // Line 16: "know it while you have it"
+    { x: 80, y: 320, type: 'crown', lineIndex: 16, discovered: false },
+
+    // Line 17: "you are marvelous"
+    { x: 100, y: 220, type: 'sun', lineIndex: 17, discovered: false },
+
+    // Line 18: "the gods wait to delight in you"
+    { x: 150, y: 120, type: 'light', lineIndex: 18, discovered: false }
 ];
 
 // Game state

@@ -29,26 +29,9 @@ class Renderer {
     }
 
     drawBackground() {
-        // Iceland-themed background colors based on chapter
-        let skyColor, horizonColor;
-
-        if (gameState.chapter === 0) {
-            // Dark volcanic landscape
-            skyColor = '#0d0f1f';
-            horizonColor = '#1a1a2e';
-        } else if (gameState.chapter === 1) {
-            // Twilight - northern lights beginning
-            skyColor = '#1a2332';
-            horizonColor = '#2d3e5f';
-        } else if (gameState.chapter === 2) {
-            // Northern lights active
-            skyColor = '#0f1f3f';
-            horizonColor = '#1e3a5f';
-        } else {
-            // Golden hour with aurora
-            skyColor = '#1f2847';
-            horizonColor = '#3d5277';
-        }
+        // Iceland sky - light blue with white clouds
+        let skyColor = '#87CEEB'; // Light blue sky
+        let horizonColor = '#B0D8F0'; // Lighter at horizon
 
         // Sky gradient
         let gradient = this.ctx.createLinearGradient(0, 0, 0, gameState.height);
@@ -57,44 +40,54 @@ class Renderer {
         this.ctx.fillStyle = gradient;
         this.ctx.fillRect(0, 0, gameState.width, gameState.height);
 
-        // Northern lights effect (chapters 1+)
-        if (gameState.chapter >= 1) {
-            this.ctx.globalAlpha = 0.3 + gameState.chapter * 0.1;
-            let auroraGradient = this.ctx.createLinearGradient(0, 0, 0, gameState.height * 0.6);
-            auroraGradient.addColorStop(0, 'rgba(100, 255, 150, 0.15)');
-            auroraGradient.addColorStop(0.5, 'rgba(80, 180, 255, 0.1)');
+        // White clouds
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        for (let i = 0; i < 8; i++) {
+            let cx = (i * 80 - gameState.cameraX * 0.1) % (gameState.width + 100);
+            let cy = 20 + (i % 3) * 15;
+            this.ctx.beginPath();
+            this.ctx.arc(cx, cy, 15 + (i % 2) * 5, 0, Math.PI * 2);
+            this.ctx.arc(cx + 15, cy, 12, 0, Math.PI * 2);
+            this.ctx.arc(cx + 25, cy + 5, 10, 0, Math.PI * 2);
+            this.ctx.fill();
+        }
+
+        // Northern lights effect (subtle, in later chapters)
+        if (gameState.chapter >= 2) {
+            this.ctx.globalAlpha = 0.15 + gameState.chapter * 0.05;
+            let auroraGradient = this.ctx.createLinearGradient(0, 0, 0, gameState.height * 0.5);
+            auroraGradient.addColorStop(0, 'rgba(150, 255, 150, 0.2)');
+            auroraGradient.addColorStop(0.5, 'rgba(100, 200, 255, 0.15)');
             auroraGradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
             this.ctx.fillStyle = auroraGradient;
-            this.ctx.fillRect(0, 0, gameState.width, gameState.height * 0.6);
+            this.ctx.fillRect(0, 0, gameState.width, gameState.height * 0.5);
             this.ctx.globalAlpha = 1.0;
         }
     }
 
     drawGround() {
-        // Iceland terrain - volcanic rock and ice
+        // Iceland terrain - yellow-green grass
         let camX = gameState.cameraX;
         let camY = gameState.cameraY;
 
-        // Base ground (volcanic rock)
-        this.ctx.fillStyle = '#2a2a3e';
-        this.ctx.fillRect(0, gameState.height * 0.7, gameState.width, gameState.height * 0.3);
+        // Base ground (yellow-green grass)
+        this.ctx.fillStyle = '#8FBC4F'; // Yellow-green grass
+        this.ctx.fillRect(0, gameState.height * 0.65, gameState.width, gameState.height * 0.35);
 
-        // Darker volcanic patches
-        this.ctx.fillStyle = '#1a1a2a';
-        for (let i = 0; i < 15; i++) {
-            let x = (i * 60 - camX * 0.5) % gameState.width;
-            let y = gameState.height * 0.7 + (i % 3) * 8;
-            this.ctx.fillRect(x, y, 40, 20);
+        // Darker grass patches for texture
+        this.ctx.fillStyle = '#7DA83E';
+        for (let i = 0; i < 20; i++) {
+            let x = (i * 50 - camX * 0.5) % gameState.width;
+            let y = gameState.height * 0.65 + (i % 4) * 10;
+            this.ctx.fillRect(x, y, 35, 15);
         }
 
-        // Ice/snow patches (increases with chapter)
-        if (gameState.chapter >= 1) {
-            this.ctx.fillStyle = 'rgba(200, 220, 240, 0.3)';
-            for (let i = 0; i < 10; i++) {
-                let x = (i * 80 + 20 - camX * 0.3) % gameState.width;
-                let y = gameState.height * 0.75 + (i % 2) * 10;
-                this.ctx.fillRect(x, y, 30, 15);
-            }
+        // Lighter grass highlights
+        this.ctx.fillStyle = '#A5D96A';
+        for (let i = 0; i < 15; i++) {
+            let x = (i * 60 + 20 - camX * 0.4) % gameState.width;
+            let y = gameState.height * 0.7 + (i % 3) * 8;
+            this.ctx.fillRect(x, y, 25, 12);
         }
     }
 
@@ -104,49 +97,54 @@ class Renderer {
 
         // Iceland landscape features
 
-        // Distant mountains (volcanic)
-        this.ctx.fillStyle = '#0a0a1a';
+        // Distant mountains (grey with white snow caps)
+        this.ctx.fillStyle = '#6B7280'; // Grey mountains
         for (let i = 0; i < 8; i++) {
             let mx = (i * 120 - camX * 0.2) % (gameState.width + 200) - 100;
             let mh = 40 + (i % 3) * 20;
             this.ctx.beginPath();
-            this.ctx.moveTo(mx, gameState.height * 0.4);
-            this.ctx.lineTo(mx + 60, gameState.height * 0.4 - mh);
-            this.ctx.lineTo(mx + 120, gameState.height * 0.4);
+            this.ctx.moveTo(mx, gameState.height * 0.45);
+            this.ctx.lineTo(mx + 60, gameState.height * 0.45 - mh);
+            this.ctx.lineTo(mx + 120, gameState.height * 0.45);
             this.ctx.fill();
+
+            // White snow caps
+            this.ctx.fillStyle = '#FFFFFF';
+            this.ctx.beginPath();
+            this.ctx.moveTo(mx + 40, gameState.height * 0.45 - mh * 0.7);
+            this.ctx.lineTo(mx + 60, gameState.height * 0.45 - mh);
+            this.ctx.lineTo(mx + 80, gameState.height * 0.45 - mh * 0.7);
+            this.ctx.fill();
+            this.ctx.fillStyle = '#6B7280';
         }
 
-        // Glaciers (more prominent in later chapters)
-        if (gameState.chapter >= 1) {
-            this.ctx.fillStyle = `rgba(180, 200, 220, ${0.2 + gameState.chapter * 0.1})`;
-            for (let i = 0; i < 5; i++) {
-                let gx = (i * 150 + 30 - camX * 0.3) % (gameState.width + 200) - 100;
-                let gh = 30 + (i % 2) * 15;
+        // Rivers/lagoons (darker blue water)
+        this.ctx.fillStyle = '#2E5A8F'; // Darker blue for water
+        for (let i = 0; i < 3; i++) {
+            let wx = (i * 200 - camX * 0.6) % (gameState.width + 150);
+            let wy = gameState.height * 0.6 - camY * 0.4;
+            if (wy > 0 && wy < gameState.height) {
+                // River/lagoon shape
                 this.ctx.beginPath();
-                this.ctx.moveTo(gx, gameState.height * 0.5);
-                this.ctx.lineTo(gx + 50, gameState.height * 0.5 - gh);
-                this.ctx.lineTo(gx + 100, gameState.height * 0.5);
+                this.ctx.ellipse(wx, wy, 60, 20, 0, 0, Math.PI * 2);
                 this.ctx.fill();
+
+                // Water shimmer (lighter blue)
+                this.ctx.fillStyle = '#5A8FC7';
+                this.ctx.beginPath();
+                this.ctx.ellipse(wx - 10, wy - 5, 20, 8, 0, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.fillStyle = '#2E5A8F';
             }
         }
 
-        // Lava rocks (scattered)
-        this.ctx.fillStyle = '#1a1a2a';
-        for (let i = 0; i < 12; i++) {
-            let rx = (i * 70 - camX) % (gameState.width + 100) - 50;
-            let ry = gameState.height * 0.65 + (i % 4) * 8 - camY * 0.5;
-            if (ry > 0 && ry < gameState.height) {
-                this.ctx.fillRect(rx, ry, 15 + (i % 3) * 5, 10);
-            }
-        }
-
-        // Steam vents (geothermal activity)
-        if (gameState.chapter >= 1 && Math.random() < 0.05) {
-            this.ctx.fillStyle = 'rgba(200, 200, 220, 0.3)';
-            let sx = Math.random() * gameState.width;
-            let sy = gameState.height * 0.7;
-            for (let j = 0; j < 5; j++) {
-                this.ctx.fillRect(sx + (Math.random() - 0.5) * 10, sy - j * 8, 3, 5);
+        // Grey rocks scattered on ground
+        this.ctx.fillStyle = '#888888';
+        for (let i = 0; i < 15; i++) {
+            let rx = (i * 60 - camX) % (gameState.width + 80) - 40;
+            let ry = gameState.height * 0.7 + (i % 4) * 10 - camY * 0.5;
+            if (ry > gameState.height * 0.65 && ry < gameState.height) {
+                this.ctx.fillRect(rx, ry, 12 + (i % 3) * 5, 8);
             }
         }
     }
@@ -487,37 +485,7 @@ class Renderer {
     }
 
     drawUI() {
-        // Progress indicator with bar
-        let progress = gameState.linesDiscovered;
-        let total = poemLines.length;
-        let progressPercent = progress / total;
-
-        // Progress bar background
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-        this.ctx.fillRect(8, 8, 80, 14);
-
-        // Progress bar fill
-        let barColor = gameState.chapter >= 2 ? '#FFD700' : '#87CEEB';
-        this.ctx.fillStyle = barColor;
-        this.ctx.fillRect(10, 10, 76 * progressPercent, 10);
-
-        // Progress text
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-        this.ctx.font = '12px VT323';
-        this.ctx.textAlign = 'center';
-        this.ctx.fillText(`${progress}/${total}`, 48, 18);
-
-        // Chapter name with background
-        let chapterName = ['Darkness', 'The Light', 'The Gods', 'Delight'][gameState.chapter];
-        this.ctx.textAlign = 'right';
-
-        // Measure text width for background
-        let textWidth = this.ctx.measureText(chapterName).width;
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-        this.ctx.fillRect(gameState.width - textWidth - 12, 8, textWidth + 4, 14);
-
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-        this.ctx.fillText(chapterName, gameState.width - 10, 18);
+        // UI removed per user request - no trackers/counters visible
     }
 
     render() {
